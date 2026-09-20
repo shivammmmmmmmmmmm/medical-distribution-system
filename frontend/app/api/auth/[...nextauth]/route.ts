@@ -3,7 +3,11 @@ import GoogleProvider from 'next-auth/providers/google'
 import FacebookProvider from 'next-auth/providers/facebook'
 import type { NextAuthOptions, Provider } from 'next-auth'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim()
+
+if (!API_URL && process.env.NODE_ENV === 'production') {
+  console.warn('NEXT_PUBLIC_API_URL is not configured; OAuth sign-in will be unavailable.')
+}
 
 const providers: Provider[] = []
 
@@ -29,6 +33,8 @@ export const authOptions: NextAuthOptions = {
   providers,
   callbacks: {
     async signIn({ user, account }) {
+      if (!API_URL) return false
+
       try {
         const res = await fetch(`${API_URL}/auth/oauth-login`, {
           method: 'POST',

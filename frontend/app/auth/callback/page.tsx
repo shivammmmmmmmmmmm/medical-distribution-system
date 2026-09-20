@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * After NextAuth OAuth completes it redirects here.
  * We read the backend JWT from the session and store it in localStorage,
