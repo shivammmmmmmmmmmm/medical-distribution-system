@@ -6,6 +6,15 @@ export const API_BASE = configuredApiUrl || (
 
 export const UPLOAD_BASE = API_BASE.replace(/\/api\/?$/, '')
 
+export function isValidApiBase(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return (url.protocol === 'http:' || url.protocol === 'https:') && Boolean(url.host)
+  } catch {
+    return false
+  }
+}
+
 export function getApiConfigurationError(): Error {
   return new Error(
     process.env.NODE_ENV === 'development'

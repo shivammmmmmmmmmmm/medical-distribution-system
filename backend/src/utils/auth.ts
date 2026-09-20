@@ -2,7 +2,11 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 const SALT_ROUNDS = 10
-const JWT_SECRET = process.env.JWT_SECRET || 'medical-dist-secret-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET?.trim() || (
+  process.env.NODE_ENV === 'production'
+    ? (() => { throw new Error('JWT_SECRET must be configured in production') })()
+    : 'medical-dist-secret-change-in-production'
+)
 const JWT_EXPIRY = '24h'
 
 export interface TokenPayload {

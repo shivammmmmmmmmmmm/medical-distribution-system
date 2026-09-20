@@ -1,5 +1,5 @@
 import type { ApiResponse, PaginatedResponse, User, Product, Order, LedgerEntry, Commission, LoginResponse, LoginRequest, RegisterRequest } from './types'
-import { API_BASE, getApiConfigurationError } from './api-config'
+import { API_BASE, getApiConfigurationError, isValidApiBase } from './api-config'
 
 function token() {
   if (typeof window === 'undefined') return null
@@ -12,7 +12,7 @@ function headers(extra?: Record<string, string>): HeadersInit {
 }
 
 async function req<T>(method: string, path: string, body?: any, signal?: AbortSignal): Promise<T> {
-  if (!API_BASE) throw getApiConfigurationError()
+  if (!API_BASE || !isValidApiBase(API_BASE)) throw getApiConfigurationError()
 
   let res: Response
   try {

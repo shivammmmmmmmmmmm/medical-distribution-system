@@ -198,16 +198,19 @@ function migrateUsersTable(): void {
 }
 
 async function seedIfEmpty(): Promise<void> {
-  const adminExists = db.prepare('SELECT id FROM users WHERE email = ?').get('admin@medical.com')
-  if (adminExists) return
-
-  const adminHash = await hashPassword('Admin@123')
   const now = new Date().toISOString()
-
-  db.prepare(
-    `INSERT INTO users (id,email,password_hash,name,role,organization_name,is_active,created_at,updated_at)
-     VALUES (?,?,?,?,?,?,1,?,?)`
-  ).run('admin-001', 'admin@medical.com', adminHash, 'System Admin', 'ADMIN', 'Medical Distribution Co.', now, now)
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.trim()
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD
+  if (adminEmail && adminPassword) {
+    const adminExists = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail)
+    if (!adminExists) {
+      const adminHash = await hashPassword(adminPassword)
+      db.prepare(
+        `INSERT INTO users (id,email,password_hash,name,role,organization_name,is_active,created_at,updated_at)
+         VALUES (?,?,?,?,?,?,1,?,?)`
+      ).run('admin-001', adminEmail, adminHash, 'System Admin', 'ADMIN', 'Medical Distribution Co.', now, now)
+    }
+  }
 
   const ins = db.prepare(
     `INSERT INTO products (id,name,company_name,category,sku,mrp,selling_price,discount_pct,manufacturer,quantity,reorder_level,is_active,created_at,updated_at)

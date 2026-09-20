@@ -40,6 +40,10 @@ const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL ||
   .map((origin) => origin.trim())
   .filter(Boolean)
 
+if (isProd && allowedOrigins.length === 0) {
+  throw new Error('FRONTEND_URL or FRONTEND_URLS must be configured in production')
+}
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
