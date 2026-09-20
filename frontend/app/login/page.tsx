@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
+import { getErrorMessage } from '@/lib/api-config'
 import { Spinner } from '@/components/Loader'
 
 export default function LoginPage() {
@@ -25,7 +26,8 @@ export default function LoginPage() {
       else if (result.user.role === 'SALES_PERSON') router.push('/sp/dashboard')
       else router.push('/user/dashboard')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+        console.error('Login failed', err)
+        setError(getErrorMessage(err, 'Login failed'))
     } finally {
       setLoading(false)
     }

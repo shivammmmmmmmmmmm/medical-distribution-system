@@ -1,6 +1,5 @@
 import type { ApiResponse, PaginatedResponse, User, Product, Order, LedgerEntry, Commission, LoginResponse, LoginRequest, RegisterRequest } from './types'
-
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+import { API_BASE, getApiConfigurationError } from './api-config'
 
 function token() {
   if (typeof window === 'undefined') return null
@@ -13,12 +12,20 @@ function headers(extra?: Record<string, string>): HeadersInit {
 }
 
 async function req<T>(method: string, path: string, body?: any, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers: headers(),
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-    ...(signal ? { signal } : {}),
-  })
+  if (!API_BASE) throw getApiConfigurationError()
+
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers: headers(),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      ...(signal ? { signal } : {}),
+    })
+  } catch (error) {
+    console.error(`API request failed: ${method} ${path}`, error)
+    throw new Error('Unable to connect to the server. Please try again.')
+  }
 
   // Some backends (or auth redirects) may return HTML.
   const contentType = res.headers.get('content-type') || ''

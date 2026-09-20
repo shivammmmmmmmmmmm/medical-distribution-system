@@ -18,6 +18,14 @@ export function getActiveDriver() {
 export async function initDatabase(): Promise<void> {
   const requested = (process.env.DB_DRIVER || 'mysql').toLowerCase()
 
+  if (process.env.NODE_ENV === 'production' && requested === 'mysql') {
+    const required = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_NAME']
+    const missing = required.filter((name) => !process.env[name]?.trim())
+    if (missing.length > 0) {
+      throw new Error(`Missing production database configuration: ${missing.join(', ')}`)
+    }
+  }
+
   if (requested === 'sqlite') {
     active = await import('./sqlite.js')
     driverLabel = 'sqlite'

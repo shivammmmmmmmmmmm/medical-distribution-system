@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
+import { getErrorMessage } from '@/lib/api-config'
 import FileUpload from '@/components/FileUpload'
 import { Spinner } from '@/components/Loader'
 import type { AccountRole } from '@/lib/types'
@@ -63,7 +64,8 @@ export default function RegisterPage() {
       }
       if (result.token) router.push(dashboardPath(result.user.role))
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed')
+        console.error('Registration failed', err)
+        setError(getErrorMessage(err, 'Registration failed'))
     } finally {
       setLoading(false)
     }

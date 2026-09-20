@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
-const UPLOAD_BASE = API_BASE.replace(/\/api\/?$/, '')
+import { UPLOAD_BASE } from '@/lib/api-config'
 
 /**
  * Helper to convert relative upload paths to full URLs.

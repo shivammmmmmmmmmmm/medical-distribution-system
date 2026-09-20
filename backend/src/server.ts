@@ -34,22 +34,29 @@ const PORT = Number(process.env.PORT) || 3001
 
 app.use(express.json({ limit: '10mb' }))
 
-// ── CORS: allow all origins in production, restrict in development ──────────
 const isProd = process.env.NODE_ENV === 'production'
-const allowedOrigins = isProd
-  ? true // reflect request origin (allows any domain)
-  : [
-      'http://localhost:3000',
-      'https://medical-distribution-system-frontend-gfdp5hwwz.vercel.app',
-    ]
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || (isProd ? '' : 'http://localhost:3000'))
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+      return
+    }
+    callback(new Error('Origin is not allowed by CORS'))
+  },
   credentials: true,
 }))
 
 app.get('/health', (_req, res) =>
   res.json({ status: 'ok', database: getActiveDriver(), timestamp: new Date().toISOString() })
+)
+
+app.get('/api/health', (_req, res) =>
+  res.json({ success: true, message: 'Backend is running' })
 )
 
 app.use('/api/auth', authRoutes)
@@ -99,7 +106,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 async function start() {
   try {
     await initDatabase()
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n✅ Medical Distribution API running on port ${PORT}`)
       console.log(`   Health: http://localhost:${PORT}/health\n`)
     })

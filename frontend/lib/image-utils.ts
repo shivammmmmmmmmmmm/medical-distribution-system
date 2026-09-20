@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+import { API_BASE } from './api-config'
 
 // Extract the base URL without /api suffix
 function getBaseUrl(): string {

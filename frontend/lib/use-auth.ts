@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { authClient } from './auth-client'
 import { User } from './types'
+import { getErrorMessage } from './api-config'
 
 let cachedUser: User | null = null
 let cachedLoaded = false
@@ -56,7 +57,8 @@ export function useAuth() {
         const u = await inFlight
         setUser(u)
       } catch (err) {
-        setError((err as any).message || 'Failed to fetch user')
+        console.error('Failed to fetch authenticated user', err)
+        setError(getErrorMessage(err, 'Unable to connect to the server. Please try again.'))
         authClient.logout()
       } finally {
         setLoading(false)
